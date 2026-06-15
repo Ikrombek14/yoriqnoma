@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 Yo'riqnoma — Adminlar uchun qo'llanma dashboardi
 
-## Getting Started
+Adminlar uchun **yo'riqnoma va qo'llanma** dashboardi. Adminlar matn va
+videolarni kiritadi; foydalanuvchilar bo'limlarni o'qiydi, testlardan o'tadi,
+to-do ro'yxatini belgilaydi va career roadmap'ni ko'radi.
 
-First, run the development server:
+## Imkoniyatlar
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Admin panel** — matn (Markdown) va videolarni (YouTube/Vimeo havola yoki
+  fayl yuklash) qo'shish/tahrirlash/o'chirish.
+- **Bo'limlar daraxti** — ichma-ich bo'limlar (masalan: Yo'riqnoma → Holly Hop,
+  ERP, Bitrix).
+- **O'z-o'zini baholash** — testlar (baho: 70 o'rtacha, 80 yaxshi, 100 zo'r).
+- **To-do list** — har bir foydalanuvchi o'zi uchun belgilaydi.
+- **Career roadmap** — administrativ jamoa va sotuv uchun lavozim o'sishi.
+- **Kirish modeli** — barcha kontent **hammaga ochiq, loginsiz** ko'riladi.
+  Faqat **admin** login (email/parol) bilan kirib CRUD qiladi. To-do
+  belgilashlar foydalanuvchi brauzerida (localStorage) saqlanadi.
+
+## Texnologiyalar
+
+Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · Supabase (Postgres, Auth,
+Storage).
+
+---
+
+## 1. Supabase loyihasini tayyorlash
+
+1. [supabase.com](https://supabase.com) da bepul loyiha yarating.
+2. **SQL Editor** ga kiring va `supabase/schema.sql` faylini to'liq nusxalab
+   ishga tushiring (jadvallar, RLS, storage bucket yaratiladi).
+3. So'ng `supabase/seed.sql` ni ishga tushiring (boshlang'ich bo'limlar va
+   namuna kontent qo'shiladi). _Bu ixtiyoriy._
+
+## 2. Muhit o'zgaruvchilari
+
+`.env.local.example` ni `.env.local` deb nusxalang va to'ldiring
+(**Project Settings → API** dan oling):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 3. Admin foydalanuvchi yaratish
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Supabase'da **Authentication → Users → Add user** orqali email/parol bilan
+   foydalanuvchi qo'shing.
+2. Foydalanuvchini **admin** qilish uchun SQL Editor'da:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```sql
+   update public.profiles set role = 'admin'
+   where email = 'sizning@email.com';
+   ```
 
-## Learn More
+   > Yangi foydalanuvchi yaratilganda `profiles` jadvalida yozuv avtomatik
+   > ochiladi (trigger orqali). Standart rol — `viewer`.
 
-To learn more about Next.js, take a look at the following resources:
+## 4. Ishga tushirish
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Brauzerda [http://localhost:3000](http://localhost:3000) ni oching.
 
-## Deploy on Vercel
+- `/login` — kirish
+- `/dashboard` — bosh sahifa
+- `/admin` — admin panel (faqat adminlar)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 5. Vercel'ga deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Loyihani GitHub'ga yuklang.
+2. [vercel.com](https://vercel.com) da import qiling.
+3. Environment Variables bo'limiga `.env.local` dagi o'zgaruvchilarni qo'shing.
+4. Deploy.
+
+---
+
+## Loyiha tuzilmasi
+
+```
+src/
+  app/
+    login/                 # kirish sahifasi
+    auth/actions.ts        # signIn / signOut
+    (dashboard)/           # foydalanuvchi qismi (sidebar layout)
+      dashboard/           # bosh sahifa
+      s/[slug]/            # bo'lim kontenti (matn + video)
+      tests/               # o'z-o'zini baholash
+      todo/                # to-do list
+      roadmap/             # career roadmap
+    admin/                 # admin panel (CRUD)
+  components/              # UI komponentlar
+  lib/
+    supabase/              # client / server / proxy clientlar
+    data.ts                # ma'lumot olish funksiyalari
+    types.ts               # tiplar
+supabase/
+  schema.sql               # baza sxemasi + RLS + storage
+  seed.sql                 # boshlang'ich kontent
+```
+
+## Matn formati (Markdown)
+
+Admin matn yozishda Markdown ishlatishi mumkin:
+
+```
+# Katta sarlavha
+## Kichik sarlavha
+**qalin matn**, *kursiv*
+- ro'yxat elementi
+> iqtibos
+`kod`
+```

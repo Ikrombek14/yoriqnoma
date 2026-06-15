@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f7fb;
+  --foreground: #1a1c2e;
+  --card: #ffffff;
+  --border: #e6e8f0;
+  --muted: #6b7280;
+  --brand: #6d28d9;
+  --brand-600: #7c3aed;
+  --brand-50: #f5f3ff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-brand-50: var(--brand-50);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Maqola matni uchun chiroyli tipografiya */
+.prose-content {
+  line-height: 1.75;
+  color: #2b2d42;
+}
+.prose-content h1 { font-size: 1.6rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
+.prose-content h2 { font-size: 1.3rem; font-weight: 700; margin: 1.1rem 0 0.5rem; }
+.prose-content h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+.prose-content p { margin: 0.6rem 0; }
+.prose-content ul { list-style: disc; padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose-content ol { list-style: decimal; padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose-content li { margin: 0.25rem 0; }
+.prose-content a { color: var(--brand); text-decoration: underline; }
+.prose-content code {
+  background: #f1f0fb;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.9em;
+}
+.prose-content blockquote {
+  border-left: 3px solid var(--brand);
+  padding-left: 0.9rem;
+  color: var(--muted);
+  margin: 0.8rem 0;
+}
+.prose-content strong { font-weight: 700; }
+
+::selection {
+  background: var(--brand-50);
 }
