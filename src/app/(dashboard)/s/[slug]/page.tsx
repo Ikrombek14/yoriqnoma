@@ -6,7 +6,9 @@ import {
   getAllSectionsFlat,
 } from "@/lib/data";
 import { renderMarkdown } from "@/lib/markdown";
+import { isBlockJSON } from "@/lib/blocks";
 import VideoPlayer from "@/components/VideoPlayer";
+import BlockViewer from "@/components/BlockViewer";
 
 export default async function SectionPage({
   params,
@@ -78,12 +80,15 @@ export default async function SectionPage({
             {a.title && (
               <h2 className="text-xl font-bold mb-3">{a.title}</h2>
             )}
-            {a.body && (
-              <div
-                className="prose-content"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(a.body) }}
-              />
-            )}
+            {a.body &&
+              (isBlockJSON(a.body) ? (
+                <BlockViewer json={a.body} />
+              ) : (
+                <div
+                  className="prose-content"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(a.body) }}
+                />
+              ))}
             {a.videos.map((v) => (
               <VideoPlayer key={v.id} video={v} />
             ))}

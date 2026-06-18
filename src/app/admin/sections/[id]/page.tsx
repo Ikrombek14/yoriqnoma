@@ -3,11 +3,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getArticlesForSection } from "@/lib/data";
 import type { Section } from "@/lib/types";
-import { updatePost, deleteArticle, deleteVideo } from "@/app/admin/actions";
-import SubmitButton from "@/components/SubmitButton";
 import PostForm from "@/components/PostForm";
-import VideoUploader from "@/components/VideoUploader";
-import VideoPlayer from "@/components/VideoPlayer";
+import PostEditCard from "@/components/PostEditCard";
 
 export default async function AdminSectionDetail({
   params,
@@ -59,103 +56,9 @@ export default async function AdminSectionDetail({
           </p>
         ) : (
           <div className="space-y-5">
-            {articles.map((a, idx) => {
-              const embed = a.videos.find((v) => v.kind === "embed");
-              const uploads = a.videos.filter((v) => v.kind === "upload");
-              return (
-                <div key={a.id} className="bg-card border rounded-2xl p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-muted">
-                      #{idx + 1}
-                    </span>
-                    <form action={deleteArticle}>
-                      <input type="hidden" name="id" value={a.id} />
-                      <SubmitButton
-                        variant="danger"
-                        size="sm"
-                        confirm="Bu mavzu o'chirilsinmi?"
-                      >
-                        🗑 O&apos;chirish
-                      </SubmitButton>
-                    </form>
-                  </div>
-
-                  <form action={updatePost} className="space-y-3">
-                    <input type="hidden" name="id" value={a.id} />
-                    <div>
-                      <label className="block text-xs font-medium mb-1 text-muted">
-                        Sarlavha
-                      </label>
-                      <input
-                        name="title"
-                        defaultValue={a.title}
-                        className="w-full rounded-xl border px-3.5 py-2 text-sm font-medium outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1 text-muted">
-                        Matn
-                      </label>
-                      <textarea
-                        name="body"
-                        defaultValue={a.body}
-                        rows={4}
-                        className="w-full rounded-xl border px-3.5 py-2 text-sm outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1 text-muted">
-                        🎥 YouTube havolasi
-                      </label>
-                      <input
-                        name="youtube"
-                        type="url"
-                        defaultValue={embed?.url ?? ""}
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        className="w-full rounded-xl border px-3.5 py-2 text-sm outline-none focus:border-brand"
-                      />
-                    </div>
-                    <SubmitButton>💾 Saqlash</SubmitButton>
-                  </form>
-
-                  {/* Joriy video ko'rinishi */}
-                  {embed && (
-                    <div className="mt-2">
-                      <div className="text-xs text-muted mb-1">
-                        Joriy video ko&apos;rinishi:
-                      </div>
-                      <VideoPlayer video={embed} />
-                    </div>
-                  )}
-
-                  {/* Yuklangan fayl videolari */}
-                  {uploads.length > 0 && (
-                    <div className="mt-3 space-y-1.5">
-                      {uploads.map((v) => (
-                        <div
-                          key={v.id}
-                          className="flex items-center justify-between gap-2 bg-black/[0.03] rounded-lg px-3 py-2"
-                        >
-                          <span className="text-xs truncate">
-                            📁 {v.title || v.url.split("/").pop()}
-                          </span>
-                          <form action={deleteVideo}>
-                            <input type="hidden" name="id" value={v.id} />
-                            <SubmitButton variant="danger" size="sm">
-                              ✕
-                            </SubmitButton>
-                          </form>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="mt-3">
-                    <VideoUploader articleId={a.id} />
-                  </div>
-                </div>
-              );
-            })}
+            {articles.map((a, idx) => (
+              <PostEditCard key={a.id} article={a} index={idx} />
+            ))}
           </div>
         )}
       </div>

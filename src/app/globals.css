@@ -66,3 +66,12 @@ body {
 ::selection {
   background: var(--brand-50);
 }
+
+/* BlockNote read-only viewer — hujjat ko'rinishi */
+.bn-viewer .bn-editor {
+  padding-inline: 0.75rem;
+  background: transparent;
+}
+.bn-viewer .bn-container {
+  background: transparent;
+}
