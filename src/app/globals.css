@@ -75,3 +75,19 @@ body {
 .bn-viewer .bn-container {
   background: transparent;
 }
+
+/* Rasm va videolar sahifaga sig'sin (kattalashib ketmasin) */
+.bn-container img,
+.bn-viewer img,
+.bn-container video,
+.bn-viewer video {
+  max-width: 100% !important;
+  height: auto;
+}
+/* Editor ichidagi rasm/video o'lchamlash bloki ham konteynerga sig'sin */
+.bn-container [data-content-type="image"],
+.bn-container [data-content-type="video"],
+.bn-viewer [data-content-type="image"],
+.bn-viewer [data-content-type="video"] {
+  max-width: 100% !important;
+}

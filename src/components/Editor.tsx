@@ -5,6 +5,24 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import type { PartialBlock } from "@blocknote/core";
+import { createClient } from "@/lib/supabase/client";
+
+/**
+ * Editor ichida rasm/video/fayl yuklaganda Supabase storage'ga joylaydi
+ * va ommaviy URL qaytaradi. (Faqat admin sessiyasi bilan ishlaydi — RLS.)
+ */
+async function uploadFile(file: File): Promise<string> {
+  const supabase = createClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+  const rnd = Math.random().toString(36).slice(2, 8);
+  const path = `editor/${Date.now()}-${rnd}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, {
+    contentType: file.type || undefined,
+  });
+  if (error) throw new Error(error.message);
+  const { data } = supabase.storage.from("media").getPublicUrl(path);
+  return data.publicUrl;
+}
 
 /** Saqlangan matnni bloklarga aylantiradi (JSON bo'lsa). Markdown bo'lsa null. */
 export function parseToBlocks(body: string): PartialBlock[] | null {
@@ -28,6 +46,7 @@ function InnerEditor({
   const initialBlocks = useMemo(() => parseToBlocks(value), [value]);
   const editor = useCreateBlockNote({
     initialContent: initialBlocks ?? undefined,
+    uploadFile,
   });
 
   // Eski markdown kontentni bloklarga ko'chirish (faqat bir marta)
