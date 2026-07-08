@@ -63,7 +63,10 @@ export async function createPost(formData: FormData) {
   const title = String(formData.get("title") || "").trim();
   const body = String(formData.get("body") || "");
   const youtube = String(formData.get("youtube") || "").trim();
-  if (!title && !body && !youtube) return { error: "Bo'sh post saqlanmaydi." };
+  // Fayldan yuklangan video (storage'ga clientda yuklanadi, bu yerga URL keladi)
+  const video_url = String(formData.get("video_url") || "").trim();
+  if (!title && !body && !youtube && !video_url)
+    return { error: "Bo'sh post saqlanmaydi." };
 
   const { data: article, error } = await supabase
     .from("articles")
@@ -78,6 +81,14 @@ export async function createPost(formData: FormData) {
       kind: "embed",
       url: youtube,
       position: 0,
+    });
+  }
+  if (video_url) {
+    await supabase.from("videos").insert({
+      article_id: article.id,
+      kind: "upload",
+      url: video_url,
+      position: youtube ? 1 : 0,
     });
   }
   refresh();
