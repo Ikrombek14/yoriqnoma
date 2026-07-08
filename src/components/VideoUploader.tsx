@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { addVideo } from "@/app/admin/actions";
+import {
+  compressVideo,
+  fmtMB,
+  MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_MB,
+} from "@/lib/video-compress";
 
 /** Ixtiyoriy: postga fayl ko'rinishidagi video yuklash. */
 export default function VideoUploader({ articleId }: { articleId: string }) {
@@ -16,14 +22,29 @@ export default function VideoUploader({ articleId }: { articleId: string }) {
   const upload = async () => {
     if (!file) return;
     setBusy(true);
-    setMsg("Yuklanmoqda...");
+    setMsg("Siqilmoqda... 0%");
     try {
+      const { file: prepared, compressed } = await compressVideo(file, (pct) =>
+        setMsg(`Siqilmoqda... ${pct}%`)
+      );
+      if (prepared.size > MAX_UPLOAD_BYTES) {
+        setMsg(
+          `Siqilgandan keyin ham ${fmtMB(prepared.size)} — maksimum ${MAX_UPLOAD_MB} MB.`
+        );
+        setBusy(false);
+        return;
+      }
+      setMsg(
+        compressed
+          ? `Yuklanmoqda... (${fmtMB(file.size)} → ${fmtMB(prepared.size)})`
+          : "Yuklanmoqda..."
+      );
       const supabase = createClient();
-      const ext = file.name.split(".").pop() || "mp4";
+      const ext = prepared.name.split(".").pop() || "mp4";
       const path = `videos/${articleId}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("media")
-        .upload(path, file);
+        .upload(path, prepared, { contentType: prepared.type || undefined });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("media").getPublicUrl(path);
       const fd = new FormData();
