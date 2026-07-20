@@ -11,19 +11,23 @@ import type { ArticleWithVideos } from "@/lib/data";
 export default function PostEditCard({
   article,
   index,
+  total = 1,
   canMoveUp = false,
   canMoveDown = false,
   moving = false,
   onMoveUp,
   onMoveDown,
+  onMoveTo,
 }: {
   article: ArticleWithVideos;
   index: number;
+  total?: number;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
   moving?: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  onMoveTo?: (pos1Based: number) => void;
 }) {
   const router = useRouter();
   const embed = article.videos.find((v) => v.kind === "embed");
@@ -72,7 +76,25 @@ export default function PostEditCard({
     <div className="bg-card border rounded-2xl p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted">#{index + 1}</span>
+          <span className="text-xs font-medium text-muted">O&apos;rni:</span>
+          <input
+            key={index}
+            type="number"
+            min={1}
+            max={total}
+            defaultValue={index + 1}
+            disabled={moving || total <= 1}
+            title="Postni shu tartib raqamiga ko'chirish"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+            }}
+            onBlur={(e) => {
+              const v = Number(e.target.value);
+              if (v && v !== index + 1) onMoveTo?.(v);
+              else e.currentTarget.value = String(index + 1);
+            }}
+            className="w-14 rounded-lg border px-2 py-1 text-xs font-medium text-center outline-none focus:border-brand disabled:opacity-50"
+          />
           <div className="flex items-center gap-1">
             <button
               type="button"

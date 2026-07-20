@@ -9,7 +9,7 @@ export default function VideoPlayer({ video }: { video: Video }) {
           🎬 {video.title}
         </div>
       )}
-      <div className="relative w-full overflow-hidden rounded-xl border bg-black aspect-video">
+      <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-xl border bg-black aspect-video">
         {video.kind === "upload" ? (
           <video
             src={video.url}
