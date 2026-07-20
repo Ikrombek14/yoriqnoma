@@ -11,9 +11,19 @@ import type { ArticleWithVideos } from "@/lib/data";
 export default function PostEditCard({
   article,
   index,
+  canMoveUp = false,
+  canMoveDown = false,
+  moving = false,
+  onMoveUp,
+  onMoveDown,
 }: {
   article: ArticleWithVideos;
   index: number;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
+  moving?: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }) {
   const router = useRouter();
   const embed = article.videos.find((v) => v.kind === "embed");
@@ -61,7 +71,29 @@ export default function PostEditCard({
   return (
     <div className="bg-card border rounded-2xl p-5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-muted">#{index + 1}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-muted">#{index + 1}</span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onMoveUp}
+              disabled={!canMoveUp || moving}
+              title="Yuqoriga siljitish"
+              className="rounded-lg border px-2 py-1 text-xs text-muted hover:text-brand hover:border-brand disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              onClick={onMoveDown}
+              disabled={!canMoveDown || moving}
+              title="Pastga siljitish"
+              className="rounded-lg border px-2 py-1 text-xs text-muted hover:text-brand hover:border-brand disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              ↓
+            </button>
+          </div>
+        </div>
         <button
           onClick={remove}
           className="rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 text-xs font-medium transition"

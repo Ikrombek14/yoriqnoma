@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getArticlesForSection } from "@/lib/data";
 import type { Section } from "@/lib/types";
 import PostForm from "@/components/PostForm";
-import PostEditCard from "@/components/PostEditCard";
+import PostList from "@/components/PostList";
 
 export default async function AdminSectionDetail({
   params,
@@ -49,17 +49,22 @@ export default async function AdminSectionDetail({
         <h2 className="text-sm font-semibold text-muted mb-3">
           QO&apos;SHILGAN MAVZULAR ({articles.length})
         </h2>
+        {articles.length > 1 && (
+          <p className="text-xs text-muted mb-3">
+            Tartibni o&apos;zgartirish uchun har bir mavzudagi ↑ / ↓
+            tugmalaridan foydalaning.
+          </p>
+        )}
 
         {articles.length === 0 ? (
           <p className="text-muted text-sm text-center py-6 bg-card border rounded-2xl">
             Hali mavzu yo&apos;q. Yuqoridagi formadan birinchisini qo&apos;shing.
           </p>
         ) : (
-          <div className="space-y-5">
-            {articles.map((a, idx) => (
-              <PostEditCard key={a.id} article={a} index={idx} />
-            ))}
-          </div>
+          <PostList
+            key={articles.map((a) => a.id).join(",")}
+            articles={articles}
+          />
         )}
       </div>
     </div>

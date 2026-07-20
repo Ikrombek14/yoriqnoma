@@ -150,6 +150,23 @@ export async function deleteArticle(formData: FormData) {
   refresh();
 }
 
+// Postlarni (mavzularni) qo'lda tartiblash: to'liq tartiblangan id ro'yxati
+// keladi, har biriga o'z indeksi bo'yicha position beriladi.
+export async function reorderArticles(formData: FormData) {
+  const supabase = await ensureAdmin();
+  const ids = String(formData.get("ids") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (ids.length === 0) return;
+  await Promise.all(
+    ids.map((id, idx) =>
+      supabase.from("articles").update({ position: idx }).eq("id", id)
+    )
+  );
+  refresh();
+}
+
 // ---------------- VIDEOS ----------------
 export async function addVideo(formData: FormData) {
   const supabase = await ensureAdmin();
