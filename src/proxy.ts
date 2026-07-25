@@ -7,15 +7,10 @@ const BLANK_HTML = "<!DOCTYPE html><html><head></head><body></body></html>";
 
 export async function proxy(request: NextRequest) {
   if (MAINTENANCE_MODE) {
-    const { pathname } = request.nextUrl;
-    const allowed =
-      pathname.startsWith("/admin") || pathname.startsWith("/login");
-    if (!allowed) {
-      return new NextResponse(BLANK_HTML, {
-        status: 200,
-        headers: { "Content-Type": "text/html; charset=utf-8" },
-      });
-    }
+    return new NextResponse(BLANK_HTML, {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
   }
   return await updateSession(request);
 }
