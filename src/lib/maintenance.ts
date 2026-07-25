@@ -3,4 +3,4 @@
 // hech narsa ko'rsatilmaydi (bo'sh sahifa). /admin va /login bundan
 // mustasno — admin bu vaqtda ham kirib ishlashda davom eta oladi.
 // Qayta ochish uchun `false` qilib yana push qiling.
-export const MAINTENANCE_MODE = false;
+export const MAINTENANCE_MODE = true;
