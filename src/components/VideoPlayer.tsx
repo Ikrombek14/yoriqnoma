@@ -18,7 +18,7 @@ export default function VideoPlayer({
       <div
         className={
           short
-            ? "relative w-full max-w-[240px] mx-auto overflow-hidden rounded-xl border bg-black aspect-[9/16]"
+            ? "relative w-full max-w-[240px] overflow-hidden rounded-xl border bg-black aspect-[9/16]"
             : "relative w-full overflow-hidden rounded-xl border bg-black aspect-video"
         }
       >

@@ -93,9 +93,15 @@ export default async function SectionPage({
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(a.body) }}
                 />
               ))}
-            {a.videos.map((v) => (
-              <VideoPlayer key={v.id} video={v} short={shortVideos} />
-            ))}
+            {shortVideos ? (
+              <div className="flex flex-wrap gap-4">
+                {a.videos.map((v) => (
+                  <VideoPlayer key={v.id} video={v} short />
+                ))}
+              </div>
+            ) : (
+              a.videos.map((v) => <VideoPlayer key={v.id} video={v} />)
+            )}
           </section>
         ))}
       </div>
