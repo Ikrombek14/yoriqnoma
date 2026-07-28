@@ -26,6 +26,10 @@ export default async function SectionPage({
 
   const children = allSections.filter((s) => s.parent_id === section.id);
 
+  // "Self development" bo'limidagi videolar qisqa (shorts/9:16) formatda,
+  // qolgan barcha bo'limlarda esa katta (16:9) formatda ko'rsatiladi.
+  const shortVideos = section.slug === "self-development-shaxsiy-rivojlanish-u2n";
+
   return (
     <article>
       <header className="mb-6">
@@ -90,7 +94,7 @@ export default async function SectionPage({
                 />
               ))}
             {a.videos.map((v) => (
-              <VideoPlayer key={v.id} video={v} />
+              <VideoPlayer key={v.id} video={v} short={shortVideos} />
             ))}
           </section>
         ))}

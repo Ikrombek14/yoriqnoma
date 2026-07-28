@@ -1,7 +1,13 @@
 import { toEmbedUrl } from "@/lib/markdown";
 import type { Video } from "@/lib/types";
 
-export default function VideoPlayer({ video }: { video: Video }) {
+export default function VideoPlayer({
+  video,
+  short = false,
+}: {
+  video: Video;
+  short?: boolean;
+}) {
   return (
     <div className="my-4">
       {video.title && (
@@ -9,7 +15,13 @@ export default function VideoPlayer({ video }: { video: Video }) {
           🎬 {video.title}
         </div>
       )}
-      <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-xl border bg-black aspect-video">
+      <div
+        className={
+          short
+            ? "relative w-full max-w-[240px] mx-auto overflow-hidden rounded-xl border bg-black aspect-[9/16]"
+            : "relative w-full overflow-hidden rounded-xl border bg-black aspect-video"
+        }
+      >
         {video.kind === "upload" ? (
           <video
             src={video.url}
