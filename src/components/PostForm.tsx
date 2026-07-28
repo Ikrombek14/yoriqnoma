@@ -15,7 +15,7 @@ import {
 export default function PostForm({ sectionId }: { sectionId: string }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [youtube, setYoutube] = useState("");
+  const [youtubeLinks, setYoutubeLinks] = useState<string[]>([""]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [body, setBody] = useState("");
   const [formKey, setFormKey] = useState(0); // editorни tozalash uchun
@@ -66,7 +66,13 @@ export default function PostForm({ sectionId }: { sectionId: string }) {
     fd.set("section_id", sectionId);
     fd.set("title", title);
     fd.set("body", body);
-    fd.set("youtube", youtube);
+    fd.set(
+      "youtube",
+      youtubeLinks
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .join("\n")
+    );
     fd.set("video_url", videoUrl);
     try {
       const res = await createPost(fd);
@@ -75,7 +81,7 @@ export default function PostForm({ sectionId }: { sectionId: string }) {
       } else {
         setMsg({ ok: true, text: "✅ Qo'shildi!" });
         setTitle("");
-        setYoutube("");
+        setYoutubeLinks([""]);
         setVideoFile(null);
         setBody("");
         setFormKey((k) => k + 1);
@@ -87,6 +93,17 @@ export default function PostForm({ sectionId }: { sectionId: string }) {
       setBusy(false);
     }
   };
+
+  const updateLink = (i: number, value: string) => {
+    setYoutubeLinks((links) => links.map((l, idx) => (idx === i ? value : l)));
+  };
+
+  const addLinkField = () => setYoutubeLinks((links) => [...links, ""]);
+
+  const removeLinkField = (i: number) =>
+    setYoutubeLinks((links) =>
+      links.length > 1 ? links.filter((_, idx) => idx !== i) : links
+    );
 
   return (
     <div className="bg-card border-2 border-brand/20 rounded-2xl p-5 space-y-3">
@@ -116,16 +133,43 @@ export default function PostForm({ sectionId }: { sectionId: string }) {
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          🎥 YouTube havolasi{" "}
+          🎥 YouTube havolasi (havolalari){" "}
           <span className="text-muted font-normal">(ixtiyoriy)</span>
         </label>
-        <input
-          value={youtube}
-          onChange={(e) => setYoutube(e.target.value)}
-          type="url"
-          placeholder="https://www.youtube.com/watch?v=..."
-          className="w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-brand"
-        />
+        <div className="space-y-2">
+          {youtubeLinks.map((link, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                value={link}
+                onChange={(e) => updateLink(i, e.target.value)}
+                type="url"
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-brand"
+              />
+              {youtubeLinks.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeLinkField(i)}
+                  title="Bu havolani o'chirish"
+                  className="shrink-0 rounded-lg border px-2.5 py-2 text-xs text-muted hover:text-rose-600 hover:border-rose-300 transition"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={addLinkField}
+          className="mt-2 text-xs font-medium text-brand hover:text-brand-600"
+        >
+          + Yana YouTube havolasi qo&apos;shish
+        </button>
+        <p className="text-[11px] text-muted mt-1">
+          Bitta mavzuga bir nechta video havolasi qo&apos;shishingiz mumkin —
+          barchasi shu mavzu ichida ko&apos;rinadi.
+        </p>
       </div>
 
       <div>

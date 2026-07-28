@@ -62,10 +62,14 @@ export async function createPost(formData: FormData) {
   const section_id = String(formData.get("section_id"));
   const title = String(formData.get("title") || "").trim();
   const body = String(formData.get("body") || "");
-  const youtube = String(formData.get("youtube") || "").trim();
+  // Bir nechta YouTube havolasi qatorma-qator ("\n") bilan keladi.
+  const youtubeLinks = String(formData.get("youtube") || "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
   // Fayldan yuklangan video (storage'ga clientda yuklanadi, bu yerga URL keladi)
   const video_url = String(formData.get("video_url") || "").trim();
-  if (!title && !body && !youtube && !video_url)
+  if (!title && !body && youtubeLinks.length === 0 && !video_url)
     return { error: "Bo'sh post saqlanmaydi." };
 
   const { data: article, error } = await supabase
@@ -75,20 +79,24 @@ export async function createPost(formData: FormData) {
     .single();
   if (error || !article) return { error: "Saqlashda xatolik." };
 
-  if (youtube) {
-    await supabase.from("videos").insert({
-      article_id: article.id,
-      kind: "embed",
-      url: youtube,
-      position: 0,
-    });
+  if (youtubeLinks.length > 0) {
+    await Promise.all(
+      youtubeLinks.map((url, idx) =>
+        supabase.from("videos").insert({
+          article_id: article.id,
+          kind: "embed",
+          url,
+          position: idx,
+        })
+      )
+    );
   }
   if (video_url) {
     await supabase.from("videos").insert({
       article_id: article.id,
       kind: "upload",
       url: video_url,
-      position: youtube ? 1 : 0,
+      position: youtubeLinks.length,
     });
   }
   refresh();
@@ -100,21 +108,14 @@ export async function updatePost(formData: FormData) {
   const id = String(formData.get("id"));
   const title = String(formData.get("title") || "").trim();
   const body = String(formData.get("body") || "");
-  const youtube = String(formData.get("youtube") || "").trim();
 
   await supabase
     .from("articles")
     .update({ title, body, updated_at: new Date().toISOString() })
     .eq("id", id);
 
-  // YouTube videoni yangilash: eski havola(lar)ni o'chirib, yangisini qo'yamiz.
-  // Yuklangan fayl videolari (kind='upload') saqlanib qoladi.
-  await supabase.from("videos").delete().eq("article_id", id).eq("kind", "embed");
-  if (youtube) {
-    await supabase
-      .from("videos")
-      .insert({ article_id: id, kind: "embed", url: youtube, position: 0 });
-  }
+  // Video havolalari (YouTube va yuklangan fayllar) alohida addVideo/deleteVideo
+  // orqali boshqariladi — bu yerda tegilmaydi.
   refresh();
 }
 

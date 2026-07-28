@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Editor from "@/components/Editor";
-import VideoPlayer from "@/components/VideoPlayer";
 import VideoUploader from "@/components/VideoUploader";
-import { updatePost, deleteArticle, deleteVideo } from "@/app/admin/actions";
+import {
+  updatePost,
+  deleteArticle,
+  deleteVideo,
+  addVideo,
+} from "@/app/admin/actions";
 import type { ArticleWithVideos } from "@/lib/data";
 
 export default function PostEditCard({
@@ -30,12 +34,13 @@ export default function PostEditCard({
   onMoveTo?: (pos1Based: number) => void;
 }) {
   const router = useRouter();
-  const embed = article.videos.find((v) => v.kind === "embed");
+  const embeds = article.videos.filter((v) => v.kind === "embed");
   const uploads = article.videos.filter((v) => v.kind === "upload");
 
   const [title, setTitle] = useState(article.title);
-  const [youtube, setYoutube] = useState(embed?.url ?? "");
   const [body, setBody] = useState(article.body);
+  const [newYoutube, setNewYoutube] = useState("");
+  const [addingYoutube, setAddingYoutube] = useState(false);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -46,7 +51,6 @@ export default function PostEditCard({
     fd.set("id", article.id);
     fd.set("title", title);
     fd.set("body", body);
-    fd.set("youtube", youtube);
     try {
       await updatePost(fd);
       setSaved(true);
@@ -54,6 +58,24 @@ export default function PostEditCard({
       setTimeout(() => setSaved(false), 2500);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const addYoutubeLink = async () => {
+    const url = newYoutube.trim();
+    if (!url) return;
+    setAddingYoutube(true);
+    try {
+      const fd = new FormData();
+      fd.set("article_id", article.id);
+      fd.set("kind", "embed");
+      fd.set("url", url);
+      fd.set("position", String(embeds.length));
+      await addVideo(fd);
+      setNewYoutube("");
+      router.refresh();
+    } finally {
+      setAddingYoutube(false);
     }
   };
 
@@ -143,19 +165,6 @@ export default function PostEditCard({
           <Editor value={article.body} onChange={setBody} />
         </div>
 
-        <div>
-          <label className="block text-xs font-medium mb-1 text-muted">
-            🎥 YouTube havolasi
-          </label>
-          <input
-            value={youtube}
-            onChange={(e) => setYoutube(e.target.value)}
-            type="url"
-            placeholder="https://www.youtube.com/watch?v=..."
-            className="w-full rounded-xl border px-3.5 py-2 text-sm outline-none focus:border-brand"
-          />
-        </div>
-
         <div className="flex items-center gap-3">
           <button
             onClick={save}
@@ -168,12 +177,45 @@ export default function PostEditCard({
         </div>
       </div>
 
-      {embed && (
-        <div className="mt-3">
-          <div className="text-xs text-muted mb-1">Joriy video:</div>
-          <VideoPlayer video={embed} />
+      {embeds.length > 0 && (
+        <div className="mt-3 space-y-1.5">
+          <div className="text-xs text-muted">
+            🎥 YouTube havolalari ({embeds.length}):
+          </div>
+          {embeds.map((v) => (
+            <div
+              key={v.id}
+              className="flex items-center justify-between gap-2 bg-black/[0.03] rounded-lg px-3 py-2"
+            >
+              <span className="text-xs truncate">{v.url}</span>
+              <button
+                onClick={() => removeVideo(v.id)}
+                className="shrink-0 rounded-lg bg-rose-50 text-rose-600 px-2.5 py-1 text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
       )}
+
+      <div className="mt-3 flex items-center gap-2">
+        <input
+          value={newYoutube}
+          onChange={(e) => setNewYoutube(e.target.value)}
+          type="url"
+          placeholder="+ Yana YouTube havolasi qo'shish..."
+          className="w-full rounded-xl border px-3.5 py-2 text-xs outline-none focus:border-brand"
+        />
+        <button
+          type="button"
+          onClick={addYoutubeLink}
+          disabled={addingYoutube || !newYoutube.trim()}
+          className="shrink-0 rounded-lg bg-brand text-white text-xs px-3 py-2 disabled:opacity-50"
+        >
+          {addingYoutube ? "..." : "Qo'shish"}
+        </button>
+      </div>
 
       {uploads.length > 0 && (
         <div className="mt-3 space-y-1.5">
