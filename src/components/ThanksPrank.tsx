@@ -23,6 +23,10 @@ export default function ThanksPrank() {
         <h2 className="text-lg font-bold mb-2">
           Sayt ishlagani uchun Ikrom akaga rahmat ayting)
         </h2>
+        <p className="text-sm text-muted mb-2">
+          Iroda opa, xafa bo&apos;lmang hay 😊🌸 Kayfiyatingiz doim a&apos;lo
+          bo&apos;lsin! ✨💐😄
+        </p>
         <a
           href={TELEGRAM_URL}
           className="mt-4 inline-block w-full rounded-xl bg-brand text-white font-semibold py-3 hover:bg-brand-600 transition-colors"
