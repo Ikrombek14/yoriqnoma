@@ -1,9 +1,21 @@
 "use client";
 
-const TELEGRAM_URL = "https://t.me/ikromoff14";
+import { useEffect, useState } from "react";
 
-// Har safar sahifa ochilganda chiqadi — yopishning yagona yo'li "Aytdim".
+const TELEGRAM_URL = "https://t.me/ikromoff14";
+const SHOW_MS = 5000;
+
+// Har safar sahifa ochilganda chiqadi va 5 sekunddan keyin o'zi yo'qoladi.
 export default function ThanksPrank() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), SHOW_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible) return null;
+
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
       <div className="max-w-sm w-full bg-card border rounded-2xl p-8 shadow-xl text-center">
